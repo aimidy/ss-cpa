@@ -1,8 +1,12 @@
-const FEE_RATE = 0.2;
 const BUNDLE_SIZE = 10;
-const ORANGE_RATIO = 0.5; // 1 橘色碎片 = 2 神鑄石 => 1 神鑄石 = 0.5 碎片
-const RED_RATIO = 1 / 3; // 1 紅色碎片 = 3 神鑄石 => 1 神鑄石 = 1/3 碎片
 
+// 1 橘色碎片 = 2 神鑄石 => 1 神鑄石 = 0.5 橘色碎片
+const ORANGE_RATIO = 0.5;
+
+// 1 紅色碎片 = 3 神鑄石 => 1 神鑄石 = 1/3 紅色碎片
+const RED_RATIO = 1 / 3;
+
+const feeRateInput = document.getElementById("feeRate");
 const stonePriceInput = document.getElementById("stonePrice");
 const bundleCountInput = document.getElementById("bundleCount");
 const orangePriceInput = document.getElementById("orangePrice");
@@ -58,14 +62,16 @@ function renderResult(options) {
 }
 
 function calculate() {
+  const feeRate = Math.max(0, Math.min(100, readNumber(feeRateInput, 20))) / 100;
   const stoneSellPricePer10 = Math.max(0, readNumber(stonePriceInput));
   const bundleCount = Math.max(1, Math.floor(readNumber(bundleCountInput, 1)));
   const orangePricePer10 = Math.max(0, readNumber(orangePriceInput));
   const redPricePer10 = Math.max(0, readNumber(redPriceInput));
 
+  feeRateInput.value = Math.round(feeRate * 100);
   bundleCountInput.value = bundleCount;
 
-  const revenueAfterFee = stoneSellPricePer10 * bundleCount * (1 - FEE_RATE);
+  const revenueAfterFee = stoneSellPricePer10 * bundleCount * (1 - feeRate);
   netRevenueEl.textContent = formatNumber(revenueAfterFee);
 
   const totalStones = bundleCount * BUNDLE_SIZE;
@@ -74,8 +80,7 @@ function calculate() {
   const orangeFragmentLots = orangeTotalFragments / BUNDLE_SIZE;
   const orangeTotalCost = orangeFragmentLots * orangePricePer10;
   const orangeProfit = revenueAfterFee - orangeTotalCost;
-  const orangeRoi =
-    orangeTotalCost === 0 ? 0 : (orangeProfit / orangeTotalCost) * 100;
+  const orangeRoi = orangeTotalCost === 0 ? 0 : (orangeProfit / orangeTotalCost) * 100;
 
   const redTotalFragments = totalStones * RED_RATIO;
   const redFragmentLots = redTotalFragments / BUNDLE_SIZE;
@@ -126,10 +131,8 @@ function calculate() {
   }
 }
 
-[stonePriceInput, bundleCountInput, orangePriceInput, redPriceInput].forEach(
-  (input) => {
-    input.addEventListener("input", calculate);
-  },
-);
+[feeRateInput, stonePriceInput, bundleCountInput, orangePriceInput, redPriceInput].forEach((input) => {
+  input.addEventListener("input", calculate);
+});
 
 calculate();

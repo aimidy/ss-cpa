@@ -1,10 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>神鑄石轉換試算</title>
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
@@ -15,9 +15,8 @@
               <div class="pill">🔄 單頁轉換試算</div>
               <h1>神鑄石轉換是否賺錢</h1>
               <p class="description">
-                依照規則：賣出神鑄石時收 20% 手續費；橘色碎片比例為
-                1:2，紅色碎片比例為 1:3；碎片以 10 為單位購入，神鑄石也以 10
-                個一組賣出。
+                規則：賣出神鑄石時收手續費；橘色碎片為 1 : 2 神鑄石，紅色碎片為
+                1 : 3 神鑄石；碎片以 10 為單位購入，神鑄石也以 10 個一組賣出。
               </p>
             </div>
             <div class="hero-icon">💎</div>
@@ -25,46 +24,44 @@
 
           <div class="form-grid">
             <div class="field">
+              <label for="feeRate">手續費 (%)</label>
+              <input id="feeRate" type="number" min="0" max="100" step="1" value="20" />
+            </div>
+
+            <div class="field">
               <label for="stonePrice">神鑄石賣價（每 10 個）</label>
               <input id="stonePrice" type="number" min="0" value="80" />
             </div>
+
             <div class="field">
               <label for="bundleCount">神鑄石賣出組數（每組 10 個）</label>
-              <input
-                id="bundleCount"
-                type="number"
-                min="1"
-                step="1"
-                value="50"
-              />
+              <input id="bundleCount" type="number" min="1" step="1" value="50" />
             </div>
+
             <div class="field">
               <label for="orangePrice">橘色碎片買價（每 10 個）</label>
-              <input id="orangePrice" type="number" min="0" value="150" />
+              <input id="orangePrice" type="number" min="0" value="120" />
             </div>
+
             <div class="field">
               <label for="redPrice">紅色碎片買價（每 10 個）</label>
-              <input id="redPrice" type="number" min="0" value="250" />
+              <input id="redPrice" type="number" min="0" value="180" />
             </div>
           </div>
         </section>
 
         <aside class="card">
           <div class="muted">💰 快速摘要</div>
+
           <div class="summary-box">
             <div class="summary-label">扣除手續費後，神鑄石總收入</div>
             <div class="summary-value" id="netRevenue">0</div>
-            <div class="summary-label">計算方式：神鑄石賣價 × 組數 × 80%</div>
+            <div class="summary-label">計算方式：神鑄石賣價 × 組數 × (1 - 手續費)</div>
           </div>
 
           <div class="note-box">
-            <div>
-              橘色碎片：1 碎片 = 2 神鑄石 ⇒ 10 神鑄石需要 5 碎片（0.5 組）。
-            </div>
-            <div>
-              紅色碎片：1 碎片 = 3 神鑄石 ⇒ 10 神鑄石需要約 3.33 碎片（0.33
-              組）。
-            </div>
+            <div>橘色碎片：1 碎片 = 2 神鑄石 ⇒ 10 神鑄石需要 5 碎片（0.5 組）。</div>
+            <div>紅色碎片：1 碎片 = 3 神鑄石 ⇒ 10 神鑄石需要約 3.33 碎片（0.33 組）。</div>
           </div>
 
           <div class="best-box">
@@ -141,6 +138,6 @@
       </div>
     </div>
 
-    <script src="./script.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
