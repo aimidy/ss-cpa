@@ -1,12 +1,10 @@
 const BUNDLE_SIZE = 10;
-
-// 1 橘色碎片 = 2 神鑄石 => 1 神鑄石 = 0.5 橘色碎片
 const ORANGE_RATIO = 0.5;
-
-// 1 紅色碎片 = 3 神鑄石 => 1 神鑄石 = 1/3 紅色碎片
 const RED_RATIO = 1 / 3;
+const STORAGE_KEY = "stone-conversion-calculator";
 
 const feeRateInput = document.getElementById("feeRate");
+const feeRateNumberInput = document.getElementById("feeRateNumber");
 const stonePriceInput = document.getElementById("stonePrice");
 const bundleCountInput = document.getElementById("bundleCount");
 const orangePriceInput = document.getElementById("orangePrice");
@@ -45,6 +43,68 @@ function readNumber(input, fallback = 0) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function saveState() {
+  const state = {
+    feeRate: clamp(readNumber(feeRateNumberInput, 20), 0, 100),
+    stonePrice: Math.max(0, readNumber(stonePriceInput, 80)),
+    bundleCount: Math.max(1, Math.floor(readNumber(bundleCountInput, 50))),
+    orangePrice: Math.max(0, readNumber(orangePriceInput, 120)),
+    redPrice: Math.max(0, readNumber(redPriceInput, 160)),
+  };
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+
+  try {
+    const state = JSON.parse(raw);
+
+    if (state.feeRate !== undefined) {
+      const feeRate = clamp(Number(state.feeRate) || 20, 0, 100);
+      feeRateInput.value = feeRate;
+      feeRateNumberInput.value = feeRate;
+    }
+
+    if (state.stonePrice !== undefined) {
+      stonePriceInput.value = Math.max(0, Number(state.stonePrice) || 0);
+    }
+
+    if (state.bundleCount !== undefined) {
+      bundleCountInput.value = Math.max(
+        1,
+        Math.floor(Number(state.bundleCount) || 1),
+      );
+    }
+
+    if (state.orangePrice !== undefined) {
+      orangePriceInput.value = Math.max(0, Number(state.orangePrice) || 0);
+    }
+
+    if (state.redPrice !== undefined) {
+      redPriceInput.value = Math.max(0, Number(state.redPrice) || 0);
+    }
+  } catch (error) {
+    console.error("讀取 localStorage 失敗:", error);
+  }
+}
+
+function syncFeeInputs(from) {
+  if (from === "slider") {
+    feeRateNumberInput.value = feeRateInput.value;
+  } else {
+    const fee = clamp(readNumber(feeRateNumberInput, 20), 0, 100);
+    feeRateNumberInput.value = fee;
+    feeRateInput.value = fee;
+  }
+}
+
 function renderResult(options) {
   const isProfit = options.profit >= 0;
 
@@ -62,13 +122,14 @@ function renderResult(options) {
 }
 
 function calculate() {
-  const feeRate = Math.max(0, Math.min(100, readNumber(feeRateInput, 20))) / 100;
-  const stoneSellPricePer10 = Math.max(0, readNumber(stonePriceInput));
+  const feeRate = clamp(readNumber(feeRateNumberInput, 20), 0, 100) / 100;
+  const stoneSellPricePer10 = Math.max(0, readNumber(stonePriceInput, 0));
   const bundleCount = Math.max(1, Math.floor(readNumber(bundleCountInput, 1)));
-  const orangePricePer10 = Math.max(0, readNumber(orangePriceInput));
-  const redPricePer10 = Math.max(0, readNumber(redPriceInput));
+  const orangePricePer10 = Math.max(0, readNumber(orangePriceInput, 0));
+  const redPricePer10 = Math.max(0, readNumber(redPriceInput, 0));
 
   feeRateInput.value = Math.round(feeRate * 100);
+  feeRateNumberInput.value = Math.round(feeRate * 100);
   bundleCountInput.value = bundleCount;
 
   const revenueAfterFee = stoneSellPricePer10 * bundleCount * (1 - feeRate);
@@ -80,7 +141,8 @@ function calculate() {
   const orangeFragmentLots = orangeTotalFragments / BUNDLE_SIZE;
   const orangeTotalCost = orangeFragmentLots * orangePricePer10;
   const orangeProfit = revenueAfterFee - orangeTotalCost;
-  const orangeRoi = orangeTotalCost === 0 ? 0 : (orangeProfit / orangeTotalCost) * 100;
+  const orangeRoi =
+    orangeTotalCost === 0 ? 0 : (orangeProfit / orangeTotalCost) * 100;
 
   const redTotalFragments = totalStones * RED_RATIO;
   const redFragmentLots = redTotalFragments / BUNDLE_SIZE;
@@ -129,10 +191,25 @@ function calculate() {
   } else {
     bestOptionEl.textContent = "紅色碎片方案比較划算";
   }
+
+  saveState();
 }
 
-[feeRateInput, stonePriceInput, bundleCountInput, orangePriceInput, redPriceInput].forEach((input) => {
-  input.addEventListener("input", calculate);
+feeRateInput.addEventListener("input", () => {
+  syncFeeInputs("slider");
+  calculate();
 });
 
+feeRateNumberInput.addEventListener("input", () => {
+  syncFeeInputs("number");
+  calculate();
+});
+
+[stonePriceInput, bundleCountInput, orangePriceInput, redPriceInput].forEach(
+  (input) => {
+    input.addEventListener("input", calculate);
+  },
+);
+
+loadState();
 calculate();

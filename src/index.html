@@ -23,9 +23,31 @@
           </div>
 
           <div class="form-grid">
-            <div class="field">
+            <div class="field full-width fee-field">
               <label for="feeRate">手續費 (%)</label>
-              <input id="feeRate" type="number" min="0" max="100" step="1" value="20" />
+              <div class="fee-control">
+                <input
+                  id="feeRate"
+                  class="fee-slider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="20"
+                />
+                <div class="fee-value-wrap">
+                  <input
+                    id="feeRateNumber"
+                    class="fee-number"
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="20"
+                  />
+                  <span class="fee-unit">%</span>
+                </div>
+              </div>
             </div>
 
             <div class="field">
@@ -45,7 +67,7 @@
 
             <div class="field">
               <label for="redPrice">紅色碎片買價（每 10 個）</label>
-              <input id="redPrice" type="number" min="0" value="180" />
+              <input id="redPrice" type="number" min="0" value="160" />
             </div>
           </div>
         </section>
